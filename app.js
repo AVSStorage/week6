@@ -1,4 +1,4 @@
-export default (express, bodyParser, createReadStream, crypto, http) => {
+export default (express, bodyParser, createReadStream, crypto, http, connect) => {
     const app = express();
     
     app.use((req, res, next) => {
@@ -66,6 +66,15 @@ app.post('/req/', (req, res) => {
 
 })
 
+app.post('/insert/', async (req, res) => {
+  const { login, password, URL} = req.body
+  console.log(login, password, URL);
+  const conn = await connect(URL, {newUrlParser: true, useUnifiedTopology:true})
+  const db = conn.db('mongodemo')
+  const result = await db.collection('users').insertOne({login, password})
+  res.send(`${login} ${password} ${URL}`)
+})
+
 
 
 app.get('/req/', (req, res) => {
@@ -77,7 +86,7 @@ app.get('/req/', (req, res) => {
 
   if (statusCode !== 200) {
     error = new Error('Request Failed.\n' +
-                      `Status Code: ${statusCode}`);
+    `Status Code: ${statusCode}`);
     resFrom.resume();
     return;
   } 
