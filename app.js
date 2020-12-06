@@ -68,9 +68,8 @@ app.post('/req/', (req, res) => {
 
 app.post('/insert/', async (req, res) => {
   const { login, password, URL} = req.body
-  console.log(login, password, URL);
   const conn = await connect(URL, {newUrlParser: true, useUnifiedTopology:true})
-  const db = conn.db('mongodemo')
+  const db = conn.db()
   const result = await db.collection('users').insertOne({login, password})
   res.send(`${login} ${password} ${URL}`)
 })
