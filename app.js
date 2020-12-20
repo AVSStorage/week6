@@ -14,7 +14,6 @@ app.get('/login/', (req, res) => {
   res.send('alisefox')
 })
 
-app.use(bodyParser.json()); 
 
 
 app.get('/test/', async (req,res) => {
