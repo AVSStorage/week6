@@ -1,4 +1,4 @@
-export default (express, bodyParser, createReadStream, crypto, http, connect) => {
+export default (express, bodyParser, createReadStream, crypto, http, connect, writeFileSync) => {
     const app = express();
     
     app.use((req, res, next) => {
@@ -7,104 +7,57 @@ export default (express, bodyParser, createReadStream, crypto, http, connect) =>
     next();
 });
 
-app.get('/sha1/:input/', (req, res, next) => {
-    const shasum = crypto.createHash('sha1')
-    shasum.update(req.params.input)
-    res.send(shasum.digest('hex'))
-})
+
 
 app.get('/login/', (req, res) => {
   res.send('alisefox')
 })
 
-app.get('/code/', (req, res) => {
+app.use(bodyParser.json()); 
+app.set('view engine','pug')
 
-  const  reader = createReadStream(import.meta.url.substring(7))
-  reader.on('data', function (chunk) { 
-    res.send(chunk.toString()); 
-  }); 
-
-  reader.on('error', function (chunk) { 
-        res.send('error')
-  }); 
-
-})
-
-app.use(bodyParser.urlencoded({  
-  extended: true
-})); 
-
-app.post('/req/', (req, res) => {
+app.get('/wordpress/wp-json/wp/v2/', (req,res) => {
     
-     http.get( req.body.addr, (resFrom) => {
-  const { statusCode } = resFrom;
-  let error;
+    res.json({
+        id: 1,
+        title: 'alisefox'
+    })
+})
+app.post('/render/', (req, res) => {
+  const {random2, random3} = req.body
 
-  if (statusCode !== 200) {
-    error = new Error('Request Failed.\n' +
-                      `Status Code: ${statusCode}`);
-    resFrom.resume();
-    return;
-  } 
-
-
-  resFrom.setEncoding('utf8');
-  let rawData = '';
-  resFrom.on('data', (chunk) => { rawData += chunk; });
-  resFrom.on('end', () => {
-    try {
-      res.send(rawData)
-    } catch (e) {
+  http.get( req.query.addr, (resFrom) => {
+    const { statusCode } = resFrom;
+    let error;
+  
+    if (statusCode !== 200) {
+      error = new Error('Request Failed.\n' +
+      `Status Code: ${statusCode}`);
+      resFrom.resume();
+      return;
+    } 
+  
+  
+    resFrom.setEncoding('utf8');
+    let rawData = '';
+    resFrom.on('data', (chunk) => { rawData += chunk; });
+    resFrom.on('end', () => {
+      try {
+        writeFileSync('views/template.pug', rawData, function (err) {
+          if (err) throw err;
+          console.log('Saved!');
+        }); 
+        res.render('template.pug', {random2, random3})
+      } catch (e) {
+        res.status(500)
+      }
+    });
+      }).on('error', (e) => {
       res.status(500)
-       res.send('error')
-    }
-  });
-    }).on('error', (e) => {
-    res.status(500)
-     res.send('error')
-    }).end();
+      }).end();
 
 })
 
-app.post('/insert/', async (req, res) => {
-  const { login, password, URL} = req.body
-  const conn = await connect(URL, {newUrlParser: true, useUnifiedTopology:true})
-  const db = conn.db()
-  const result = await db.collection('users').insertOne({login, password})
-  res.send(`${login} ${password} ${URL}`)
-})
-
-
-
-app.get('/req/', (req, res) => {
-    
-    
-    http.get( req.query.addr, (resFrom) => {
-  const { statusCode } = resFrom;
-  let error;
-
-  if (statusCode !== 200) {
-    error = new Error('Request Failed.\n' +
-    `Status Code: ${statusCode}`);
-    resFrom.resume();
-    return;
-  } 
-
-
-  resFrom.setEncoding('utf8');
-  let rawData = '';
-  resFrom.on('data', (chunk) => { rawData += chunk; });
-  resFrom.on('end', () => {
-    try {
-      res.send(rawData)
-    } catch (e) {
-      res.status(500)
-    }
-  });
-    }).on('error', (e) => {
-    res.status(500)
-    }).end();
-})
 
 
 app.all('*', function( req, res) {
