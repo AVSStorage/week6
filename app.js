@@ -21,7 +21,7 @@ app.get('/wordpress/wp-json/wp/v2/posts/1', (req,res) => {
     
     res.json({
         id: 1,
-        title: 'alisefox'
+        title: {rendered: 'alisefox'}
     })
 })
 app.post('/render/', (req, res) => {
