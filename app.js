@@ -16,7 +16,7 @@ app.get('/login/', (req, res) => {
 app.use(bodyParser.json()); 
 app.set('view engine','pug')
 
-app.get('/wordpress/wp-json/wp/v2/', (req,res) => {
+app.get('/wordpress/wp-json/wp/v2/posts/1', (req,res) => {
     
     res.json({
         id: 1,
