@@ -4,6 +4,7 @@ export default (express, bodyParser, createReadStream, crypto, http, connect, wr
     app.use((req, res, next) => {
     res.append('Access-Control-Allow-Origin', ['*']);
     res.append('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,OPTIONS,DELETE');
+    res.append("Access-Control-Allow-Headers", "Accept, Content-Type, Authorization, X-Requested-With")
     next();
 });
 
