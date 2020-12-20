@@ -26,7 +26,10 @@ app.get('/wordpress/wp-json/wp/v2/posts/1', (req,res) => {
 app.post('/render/', (req, res) => {
   const {random2, random3} = req.body
 
-  http.get( req.query.addr, (resFrom) => {
+  http.get( req.query.addr,{headers: {
+    'Access-Control-Allow-Origin':'*',
+    'Access-Control-Allow-Methods':'GET,POST,PUT,PATCH,OPTIONS,DELETE'
+}}, (resFrom) => {
     const { statusCode } = resFrom;
     let error;
   
